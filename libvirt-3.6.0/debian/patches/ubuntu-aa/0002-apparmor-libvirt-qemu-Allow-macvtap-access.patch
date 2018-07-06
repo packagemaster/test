@@ -1,0 +1,31 @@
+From d245ceaba2539bd5f5e8898b938ee1f977df9434 Mon Sep 17 00:00:00 2001
+From: Guilhem Lettron <guilhem+ubuntu@lettron.fr>
+Date: Thu, 11 May 2017 14:28:05 +0200
+Subject: [PATCH 02/33] apparmor, libvirt-qemu: Allow macvtap access
+
+Add rule to allow access to /dev/tap* used by macvtap.
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/921870
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index f462d74..899bf6c 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -17,6 +17,7 @@
+   network inet6 stream,
+ 
+   /dev/net/tun rw,
++  /dev/tap* rw,
+   /dev/kvm rw,
+   /dev/ptmx rw,
+   /dev/kqemu rw,
+-- 
+2.7.4
+

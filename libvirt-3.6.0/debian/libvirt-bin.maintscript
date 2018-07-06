@@ -1,0 +1,31 @@
+# Conffile handling was broken in yaketty & zesty (LP: 1694159)
+# Try to clean up as good as possible considering LTS->LTS as well as
+# upgraders that went through yakkety/zesty or the Ubuntu Cloud Archive.
+# All these can be dropped together with libvirt-bin itself >=18.10
+
+# was Ubuntu only and is dropped now, can be dropped >=18.10
+rm_conffile /etc/init/libvirt-bin.conf 2.5.0-3ubuntu8~
+
+# For LTS->LTS these can be moved if there was custom content
+# Changes to these are unlikely but try to help the user as much as possible
+mv_conffile /etc/cron.daily/libvirt-bin /etc/cron.daily/libvirt-daemon-system 2.1.0-1ubuntu9~
+mv_conffile /etc/dnsmasq.d-available/libvirt-bin /etc/dnsmasq.d-available/libvirt-daemon  2.1.0-1ubuntu9~
+mv_conffile /etc/default/libvirt-bin /etc/default/libvirtd  2.1.0-1ubuntu9~
+
+# if these files exist when upgrading then systems will have old
+# and new conffiles (which is misleading at best).
+# Maintainer scripts should not decide which ones to keep, so remove the old ones
+# which were not active for two releases anyway.
+# Custom data (if any) will be retained in backup files.
+rm_conffile /etc/cron.daily/libvirt-bin 2.5.0-3ubuntu8~
+rm_conffile /etc/default/libvirt-bin 2.5.0-3ubuntu8~
+# Note: the related symlink created by postinst will be removed in postinst
+rm_conffile /etc/dnsmasq.d-available/libvirt-bin 2.5.0-3ubuntu8~
+# failed to be removed since Trusty due to changes at different versions
+rm_conffile /etc/apparmor.d/libvirt/TEMPLATE 2.5.0-3ubuntu8~
+
+# /etc/init.d/libvirt-bin no more provides libvirt-bin; also custom content
+# would be very uncommon; furthermore insserv would object on a normal
+# mv_conffile (because at postinst time two files would provide libvirtd).
+# Therefore only remove (not mv) it and retain data if needed.
+rm_conffile /etc/init.d/libvirt-bin 2.5.0-3ubuntu8~

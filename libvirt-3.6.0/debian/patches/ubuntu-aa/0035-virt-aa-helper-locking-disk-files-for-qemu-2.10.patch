@@ -1,0 +1,56 @@
+From 167d5710b277bf1bd3ac1c37071349774133b644 Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Thu, 10 Aug 2017 11:07:26 +0200
+Subject: [PATCH] virt-aa-helper: locking disk files for qemu 2.10
+
+Testing qemu-2.10-rc2 shows issues like:
+  qemu-system-x86_64: -drive file=/var/lib/uvtool/libvirt/images/kvmguest- \
+  artful-normal.qcow,format=qcow2,if=none,id=drive-virtio-disk0:
+  Failed to lock byte 100
+
+It seems the following qemu commit changed the needs for the backing
+image rules:
+
+(qemu) commit 244a5668106297378391b768e7288eb157616f64
+Author: Fam Zheng <famz@redhat.com>
+    file-posix: Add image locking to perm operations
+
+The block appears as:
+ apparmor="DENIED" operation="file_lock" [...]
+ name="/var/lib/uvtool/libvirt/images/kvmguest-artful-normal.qcow"
+ [...] comm="qemu-system-x86" requested_mask="k" denied_mask="k"
+
+With that qemu change in place the rules generated for the image
+and backing files need the allowance to also lock (k) the files.
+
+Disks are added via add_file_path and with this fix rules now get
+that permission, but no other rules are changed, example:
+  -  "/var/lib/uvtool/libvirt/images/kvmguest-artful-normal-a2.qcow" rw,
+  +  "/var/lib/uvtool/libvirt/images/kvmguest-artful-normal-a2.qcow" rwk
+
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+---
+ src/security/virt-aa-helper.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+Forwarded: yes (https://www.redhat.com/archives/libvir-list/2017-August/msg00312.html)
+Author: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1709818
+Last-Update: 2017-08-10
+--- a/src/security/virt-aa-helper.c
++++ b/src/security/virt-aa-helper.c
+@@ -892,11 +892,11 @@
+ 
+     if (depth == 0) {
+         if (disk->src->readonly)
+-            ret = vah_add_file(buf, path, "R");
++            ret = vah_add_file(buf, path, "Rk");
+         else
+-            ret = vah_add_file(buf, path, "rw");
++            ret = vah_add_file(buf, path, "rwk");
+     } else {
+-        ret = vah_add_file(buf, path, "R");
++        ret = vah_add_file(buf, path, "Rk");
+     }
+ 
+     if (ret != 0)

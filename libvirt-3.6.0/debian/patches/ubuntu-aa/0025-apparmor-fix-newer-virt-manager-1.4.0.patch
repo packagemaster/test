@@ -1,0 +1,30 @@
+From 357f87f2c3ff3be4f0045eb9bf06db3eb61e2e77 Mon Sep 17 00:00:00 2001
+From: Stefan Bader <stefan.bader@canonical.com>
+Date: Tue, 23 May 2017 17:19:33 +0200
+Subject: [PATCH 25/33] apparmor: fix newer virt-manager 1.4.0
+
+Let's virt-manager connect with openGraphicsFD.
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1668681
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index b1f0b2e..d5594bb 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -196,3 +196,6 @@
+   # silence refusals to open lttng files (see LP: #1432644)
+   deny /dev/shm/lttng-ust-wait-* r,
+   deny /run/shm/lttng-ust-wait-* r,
++
++  # allow connect with openGraphicsFD to work
++  unix (send, receive) type=stream addr=none peer=(label=/usr/sbin/libvirtd),
+-- 
+2.7.4
+

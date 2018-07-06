@@ -1,0 +1,26 @@
+Title: KVM Spice support
+DEP: 3
+Date: 2012-01-10
+Drivers: Serge Hallyn
+URL: https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/903962
+Abstract:
+ Ubuntu had this in 2011, these days all that is left is only a compat name.
+ It could actually be dropped, but the transition out is long and error prone,
+ so for now the delta is kept as-is.
+
+ The drawback on that is that e.g. virsh capabilities lists this as the main
+ source, and thereby guests created inherit this. But since it is next to
+ impossible to fix all exitsing definitions (think of on remote disk xmls) it
+ is compelx to touch. If anything a xml load time retranslate might be a
+ solution, but then until needed we might as well keep the alias here.
+
+--- a/src/qemu/qemu_capabilities.c
++++ b/src/qemu/qemu_capabilities.c
+@@ -893,6 +893,7 @@
+         const char *kvmbins[] = {
+             "/usr/libexec/qemu-kvm", /* RHEL */
+             "qemu-kvm", /* Fedora */
++            "kvm-spice", /* qemu-kvm-spice Ubuntu package */
+             "kvm", /* Debian/Ubuntu */
+             NULL,
+         };

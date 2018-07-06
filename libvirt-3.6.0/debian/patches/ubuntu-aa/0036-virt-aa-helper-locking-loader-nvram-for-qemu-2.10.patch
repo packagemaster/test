@@ -1,0 +1,48 @@
+From a1686bd7eeb69055cc73a2591c04a20ac2185a60 Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Thu, 17 Aug 2017 09:38:52 +0200
+Subject: [PATCH] virt-aa-helper: locking loader/nvram for qemu 2.10
+
+Testing qemu-2.10-rc3 shows issues like:
+  qemu-system-aarch64: -drive file=/home/ubuntu/vm-start-stop/vms/
+  7936-0_CODE.fd,if=pflash,format=raw,unit=1: Failed to unlock byte 100
+
+There is an apparmor deny due to qemu now locking those files:
+ apparmor="DENIED" operation="file_lock" [...]
+ name="/home/ubuntu/vm-start-stop/vms/7936-0_CODE.fd"
+ name="/var/lib/uvtool/libvirt/images/kvmguest-artful-normal.qcow"
+ [...] comm="qemu-system-aarch64" requested_mask="k" denied_mask="k"
+
+The profile needs to allow locking for loader and nvram files via
+the locking (k) rule.
+
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+---
+ src/security/virt-aa-helper.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Forwarded: yes (https://www.redhat.com/archives/libvir-list/2017-August/msg00483.html)
+Author: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1710960
+Last-Update: 2017-08-17
+diff --git a/src/security/virt-aa-helper.c b/src/security/virt-aa-helper.c
+index ab82f12..2308323 100644
+--- a/src/security/virt-aa-helper.c
++++ b/src/security/virt-aa-helper.c
+@@ -1029,11 +1029,11 @@ get_files(vahControl * ctl)
+             goto cleanup;
+ 
+     if (ctl->def->os.loader && ctl->def->os.loader->path)
+-        if (vah_add_file(&buf, ctl->def->os.loader->path, "r") != 0)
++        if (vah_add_file(&buf, ctl->def->os.loader->path, "rk") != 0)
+             goto cleanup;
+ 
+     if (ctl->def->os.loader && ctl->def->os.loader->nvram)
+-        if (vah_add_file(&buf, ctl->def->os.loader->nvram, "rw") != 0)
++        if (vah_add_file(&buf, ctl->def->os.loader->nvram, "rwk") != 0)
+             goto cleanup;
+ 
+     for (i = 0; i < ctl->def->ngraphics; i++) {
+-- 
+2.7.4
+

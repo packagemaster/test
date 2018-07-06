@@ -1,0 +1,33 @@
+From 25c1d9ab0b921af5c914c1cc521c2bbfe96e4edc Mon Sep 17 00:00:00 2001
+From: Jamie Strandboge <jamie@ubuntu.com>
+Date: Thu, 11 May 2017 16:08:14 +0200
+Subject: [PATCH 16/33] apparmor, libvirtd: Allow ixr to
+ /var/lib/libvirt/virtd*
+
+This is required for the ebtables functionality added in
+libvirt 0.8.0.
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/usr.sbin.libvirtd | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/examples/apparmor/usr.sbin.libvirtd b/examples/apparmor/usr.sbin.libvirtd
+index cecfc6f..27ad4ff 100644
+--- a/examples/apparmor/usr.sbin.libvirtd
++++ b/examples/apparmor/usr.sbin.libvirtd
+@@ -64,6 +64,10 @@
+   /usr/lib/xen-*/bin/libxl-save-helper PUx,
+   /usr/lib/xen-*/bin/pygrub PUx,
+ 
++  # Required by nwfilter_ebiptables_driver.c:ebiptablesWriteToTempFile() to
++  # write and run an ebtables script.
++  /var/lib/libvirt/virtd* ixr,
++
+   # force the use of virt-aa-helper
+   audit deny /{usr/,}sbin/apparmor_parser rwxl,
+   audit deny /etc/apparmor.d/libvirt/** wxl,
+-- 
+2.7.4
+

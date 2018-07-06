@@ -1,0 +1,28 @@
+Description: Xen default URI
+ Add some additional code which sets LIBVIRT_DEFAULT_URI if running in
+ a Xen control domain. The built-in detection does not really work because
+ qemu (not accelerated/KVM) is is still available as conntection driver.
+ Though very unlikely desired as the default then.
+Forwarded: no
+Author: Stefan Bader <stefan.bader@canonical.com>
+
+Index: libvirt-1.3.1/tools/libvirt-guests.sh.in
+===================================================================
+--- libvirt-1.3.1.orig/tools/libvirt-guests.sh.in	2016-03-02 11:22:16.413519687 +0100
++++ libvirt-1.3.1/tools/libvirt-guests.sh.in	2016-03-04 14:41:00.806625419 +0100
+@@ -61,6 +61,15 @@ VAR_SUBSYS_LIBVIRT_GUESTS="$localstatedi
+ 
+ RETVAL=0
+ 
++# Default URI is not correct in the Xen case as the non-accelerated
++# qemu driver also gets initialized.
++if [ -f "/proc/xen/capabilities" ]; then
++    if [ "$(cat /proc/xen/capabilities)" = "control_d" ]; then
++        LIBVIRT_DEFAULT_URI="xen:///"
++        export LIBVIRT_DEFAULT_URI
++    fi
++fi
++
+ # retval COMMAND ARGUMENTS...
+ # run command with arguments and convert non-zero return value to 1 and set
+ # the global return variable

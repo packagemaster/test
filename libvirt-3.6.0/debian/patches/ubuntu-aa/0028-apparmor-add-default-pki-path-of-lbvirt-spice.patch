@@ -1,0 +1,35 @@
+From 34bf281baa790eddb5025c022bee3c4bab283bfc Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Fri, 12 May 2017 08:01:53 +0200
+Subject: [PATCH 28/33] apparmor: add default pki path of lbvirt-spice
+
+Adding the PKI path that is used as default suggestion in src/qemu/qemu.conf
+If people use non-default paths they should use local overrides but the
+suggested defaults we should open up.
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1690140
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index 5a335e5..eb53684 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -159,6 +159,10 @@
+   /etc/pki/libvirt/ r,
+   /etc/pki/libvirt/** r,
+ 
++  # for use by libvirt-spice (LP: #1690140)
++  /etc/pki/libvirt-spice/ r,
++  /etc/pki/libvirt-spice/** r,
++
+   # for save and resume
+   /{usr/,}bin/dash rmix,
+   /{usr/,}bin/dd rmix,
+-- 
+2.7.4
+

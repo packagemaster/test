@@ -1,0 +1,35 @@
+From 872bd5b8bc2343d223fda5fed918e7d344ce1858 Mon Sep 17 00:00:00 2001
+From: Serge Hallyn <serge.hallyn@ubuntu.com>
+Date: Thu, 11 May 2017 15:18:12 +0200
+Subject: [PATCH 11/33] apparmor, libvirt-qemu: Allow access to hugepage mounts
+
+Allows owner access to hugepage mounts (both, the old and
+new systemd variant).
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1250216
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1524737
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index 7982ee3..89175a8 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -176,6 +176,10 @@
+   /sys/bus/ r,
+   /sys/class/ r,
+ 
++  # for access to hugepages (LP: #1250216 and LP: #1524737)
++  owner "/run/hugepages/kvm/libvirt/qemu/**" rw,
++  owner "/dev/hugepages/libvirt/qemu/**" rw,
++
+   # for qemu-block-extra (LP: #1554761)
+   /usr/lib/@{multiarch}/qemu/*.so rm,
+ 
+-- 
+2.7.4
+

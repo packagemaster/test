@@ -1,0 +1,32 @@
+From 3ef03cb17a27adc64465d1edd68046aa746f8be2 Mon Sep 17 00:00:00 2001
+From: Jamie Strandboge <jamie@ubuntu.com>
+Date: Thu, 11 May 2017 16:00:05 +0200
+Subject: [PATCH 15/33] apparmor, virt-aa-helper: Allow access to ecryptfs
+ files
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/591769
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/usr.lib.libvirt.virt-aa-helper | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/examples/apparmor/usr.lib.libvirt.virt-aa-helper b/examples/apparmor/usr.lib.libvirt.virt-aa-helper
+index 569b2f1..5306557 100644
+--- a/examples/apparmor/usr.lib.libvirt.virt-aa-helper
++++ b/examples/apparmor/usr.lib.libvirt.virt-aa-helper
+@@ -49,6 +49,10 @@ profile virt-aa-helper /usr/{lib,lib64}/libvirt/virt-aa-helper {
+   audit deny @{HOME}/bin/** mrwkl,
+   @{HOME}/ r,
+   @{HOME}/** r,
++  # Alow access to ecryptfs files (LP: #591769)
++  @{HOME}/.Private/** mrwlk,
++  @{HOMEDIRS}/.ecryptfs/*/.Private/** mrwlk,
++
+   /var/lib/libvirt/images/ r,
+   /var/lib/libvirt/images/** r,
+   /{media,mnt,opt,srv}/** r,
+-- 
+2.7.4
+

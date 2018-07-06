@@ -1,0 +1,31 @@
+From 6358851ca4fbb148c5278460b2cc2ce6711c9740 Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Wed, 10 May 2017 16:35:05 +0200
+Subject: [PATCH 27/33] apparmor: allow reading cmdline of shutdown signal
+
+Qemu wants to report which process caused it to shut down. For
+this to work it needs access to cmdline information.
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1680384
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index 07e3b61..5a335e5 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -202,3 +202,6 @@
+ 
+   # for vfio (LP: #1678322)
+   /dev/vfio/vfio rw,
++
++  # to report on shutdown who send the kill signal (LP: #1680384)
++  /proc/*/cmdline r,
+-- 
+2.7.4
+

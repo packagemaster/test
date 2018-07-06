@@ -1,0 +1,34 @@
+From 191bcb4ab6ad280f361f26c5484dba04577f9573 Mon Sep 17 00:00:00 2001
+From: Jamie Strandboge <jamie@ubuntu.com>
+Date: Thu, 11 May 2017 15:10:11 +0200
+Subject: [PATCH 10/33] apparmor, libvirt-qemu: Allow qemu-block-extra
+ libraries
+
+Allows (multi-arch enabled) access to libraries under
+/usr/lib/@{multiarch}/qemu/*.so
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1554761
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index c4d27af..7982ee3 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -176,6 +176,9 @@
+   /sys/bus/ r,
+   /sys/class/ r,
+ 
++  # for qemu-block-extra (LP: #1554761)
++  /usr/lib/@{multiarch}/qemu/*.so rm,
++
+   # for rbd
+   /etc/ceph/ceph.conf r,
+ 
+-- 
+2.7.4
+

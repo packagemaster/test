@@ -1,0 +1,61 @@
+From e8e89932cd76190c0523731b80b0554b50ceb4fa Mon Sep 17 00:00:00 2001
+From: Jamie Strandboge <jamie@ubuntu.com>
+Date: Thu, 11 May 2017 15:40:40 +0200
+Subject: [PATCH 13/33] apparmor: Add rules for mediation support
+
+Adds signal and ptrace rules to libvirt-qemu and bare signal
+and ptraces rules to usr.sbin.libvirtd.
+Also adds dbus on system bus and anonymous socket mediation (unix)
+rules to usr.sbin.libvirtd.
+
+These new keywords require apparmor 2.9 or later.
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1298611
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1250216
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu      | 5 +++++
+ examples/apparmor/usr.sbin.libvirtd | 9 +++++++++
+ 2 files changed, 14 insertions(+)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index 89175a8..8973df8 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -176,6 +176,11 @@
+   /sys/bus/ r,
+   /sys/class/ r,
+ 
++  # Allow guests to receive signals from and be traced by
++  # libvirtd (LP: #1298611). Requires apparmor >= 2.9.
++  signal (receive) peer=/usr/sbin/libvirtd,
++  ptrace (tracedby) peer=/usr/sbin/libvirtd,
++
+   # for access to hugepages (LP: #1250216 and LP: #1524737)
+   owner "/run/hugepages/kvm/libvirt/qemu/**" rw,
+   owner "/dev/hugepages/libvirt/qemu/**" rw,
+diff --git a/examples/apparmor/usr.sbin.libvirtd b/examples/apparmor/usr.sbin.libvirtd
+index 8406a27..cecfc6f 100644
+--- a/examples/apparmor/usr.sbin.libvirtd
++++ b/examples/apparmor/usr.sbin.libvirtd
+@@ -39,6 +39,15 @@
+   # apparmor >= 2.9
+   network netlink,
+ 
++  # Grant bare signal and ptrace. Grant dbus on the system bus
++  # (LP: #1298611). Requires apparmor >= 2.9.
++  dbus bus=system,
++  signal,
++  ptrace,
++  # Allow abstract socket mediation (LP: #1362199). Requires apparmor
++  # >= 2.9.
++  unix,
++
+   # Very lenient profile for libvirtd since we want to first focus on confining
+   # the guests. Guests will have a very restricted profile.
+   / r,
+-- 
+2.7.4
+

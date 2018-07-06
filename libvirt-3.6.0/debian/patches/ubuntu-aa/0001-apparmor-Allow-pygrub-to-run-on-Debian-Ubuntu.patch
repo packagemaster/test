@@ -1,0 +1,33 @@
+From bc90a5617bd0f55294c1b0d500b2fdef9d14e189 Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Tue, 4 Jul 2017 07:31:38 +0200
+Subject: [PATCH 01/33] apparmor: Allow pygrub to run on Debian/Ubuntu
+
+In Debian/Ubuntu the pygrub command is located under
+/usr/lib/xen-<version>/bin/pygrub.
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1326003
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+---
+ examples/apparmor/usr.sbin.libvirtd | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/examples/apparmor/usr.sbin.libvirtd b/examples/apparmor/usr.sbin.libvirtd
+index acb59e0..d43389d 100644
+--- a/examples/apparmor/usr.sbin.libvirtd
++++ b/examples/apparmor/usr.sbin.libvirtd
+@@ -51,6 +51,7 @@
+   /usr/{lib,lib64}/xen-common/bin/xen-toolstack PUx,
+   /usr/{lib,lib64}/xen/bin/* Ux,
+   /usr/lib/xen-*/bin/libxl-save-helper PUx,
++  /usr/lib/xen-*/bin/pygrub PUx,
+ 
+   # force the use of virt-aa-helper
+   audit deny /{usr/,}sbin/apparmor_parser rwxl,
+-- 
+2.7.4
+

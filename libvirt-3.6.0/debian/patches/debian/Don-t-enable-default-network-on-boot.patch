@@ -1,0 +1,38 @@
+From: Guido Guenther <agx@sigxcpu.org>
+Date: Fri, 7 Mar 2008 09:08:26 +0100
+Subject: Don't enable default network on boot
+
+to not interfere with existing network configurations
+---
+ src/Makefile.am | 3 +--
+ src/Makefile.in | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index eae32dc..0848c2c 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -3415,8 +3415,7 @@ if WITH_NETWORK
+ 	      $(DESTDIR)$(confdir)/qemu/networks/default.xml && \
+ 	    rm $(DESTDIR)$(confdir)/qemu/networks/default.xml.t; }
+ 	( cd $(DESTDIR)$(confdir)/qemu/networks/autostart && \
+-	  rm -f default.xml && \
+-	  $(LN_S) ../default.xml default.xml )
++	  rm -f default.xml )
+ endif WITH_NETWORK
+ 
+ uninstall-local:: uninstall-init uninstall-systemd
+diff --git a/src/Makefile.in b/src/Makefile.in
+index cf7b25f..7c042c9 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -12483,8 +12483,7 @@ install-data-local: install-init install-systemd
+ @WITH_NETWORK_TRUE@	      $(DESTDIR)$(confdir)/qemu/networks/default.xml && \
+ @WITH_NETWORK_TRUE@	    rm $(DESTDIR)$(confdir)/qemu/networks/default.xml.t; }
+ @WITH_NETWORK_TRUE@	( cd $(DESTDIR)$(confdir)/qemu/networks/autostart && \
+-@WITH_NETWORK_TRUE@	  rm -f default.xml && \
+-@WITH_NETWORK_TRUE@	  $(LN_S) ../default.xml default.xml )
++@WITH_NETWORK_TRUE@	  rm -f default.xml )
+ 
+ uninstall-local:: uninstall-init uninstall-systemd
+ @WITH_LIBVIRTD_TRUE@	rmdir "$(DESTDIR)$(localstatedir)/lib/libvirt/lockd/files" ||:

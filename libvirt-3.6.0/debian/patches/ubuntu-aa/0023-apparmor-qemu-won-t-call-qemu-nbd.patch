@@ -1,0 +1,30 @@
+From 2e98a9714a70eb67041db96265344131e4a63a78 Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Wed, 10 May 2017 17:40:55 +0200
+Subject: [PATCH 23/33] apparmor: qemu won't call qemu-nbd
+
+While libvirtd might do so, qemu itself as a guest will not need
+to call qemu-nbd so remove it from the profile.
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index 2866d1a..b1f0b2e 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -137,7 +137,6 @@
+   /usr/bin/qemu-mipsel rmix,
+   /usr/bin/qemu-mipsn32 rmix,
+   /usr/bin/qemu-mipsn32el rmix,
+-  /usr/bin/qemu-nbd rmix,
+   /usr/bin/qemu-or32 rmix,
+   /usr/bin/qemu-ppc rmix,
+   /usr/bin/qemu-ppc64 rmix,
+-- 
+2.7.4
+

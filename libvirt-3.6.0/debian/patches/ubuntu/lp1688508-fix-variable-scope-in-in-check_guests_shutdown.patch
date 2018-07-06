@@ -1,0 +1,41 @@
+From 7e476356c28a7fccd40eebbd8dac83e49e782010 Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Mon, 19 Mar 2018 12:44:31 +0100
+Subject: [PATCH] tools: fix variable scope in in check_guests_shutdown
+
+libvirt-guests.sh when run with more active guests than requested to
+shut down in parallel will run until it times out only shutting down
+the first set of guests.
+
+This patch fixes parallel shutdown by fixing a variable scope issue
+where check_guests_shutdown unintentionally reset $guests which
+prevented further progress.
+
+Fixes: https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/1688508
+
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+---
+ tools/libvirt-guests.sh.in | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tools/libvirt-guests.sh.in b/tools/libvirt-guests.sh.in
+index d5e68e5..fcada31 100644
+--- a/tools/libvirt-guests.sh.in
++++ b/tools/libvirt-guests.sh.in
+@@ -333,11 +333,11 @@ guest_count()
+ check_guests_shutdown()
+ {
+     uri=$1
+-    guests=$2
++    guests_to_check=$2
+ 
+     guests_shutting_down=
+     for guest in $guests; do
+-        if ! guest_is_on "$uri" "$guest" >/dev/null 2>&1; then
++        if ! guest_is_on "$uri" "$guests_to_check" >/dev/null 2>&1; then
+             eval_gettext "Failed to determine state of guest: \$guest. Not tracking it anymore."
+             echo
+             continue
+-- 
+2.7.4
+

@@ -1,0 +1,33 @@
+From a2821052130bdd5020215405fca9ccdf34927a8c Mon Sep 17 00:00:00 2001
+From: Stefan Bader <stefan.bader@canonical.com>
+Date: Tue, 23 May 2017 17:16:45 +0200
+Subject: [PATCH 06/33] apparmor, libvirt-qemu: Silence lttng related deny
+ messages
+
+Prevent denial messages related to attempted reads on lttng
+files from spamming the logs.
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1432644
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index 9c07e7b..7e99eb4 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -176,3 +176,7 @@
+   @{PROC}/device-tree/ r,
+   @{PROC}/device-tree/** r,
+   /sys/firmware/devicetree/** r,
++
++  # silence refusals to open lttng files (see LP: #1432644)
++  deny /dev/shm/lttng-ust-wait-* r,
++  deny /run/shm/lttng-ust-wait-* r,
+-- 
+2.7.4
+

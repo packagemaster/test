@@ -1,0 +1,82 @@
+From ff02d1af4041ea4cf6bea68aac66d93a970e92f1 Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Tue, 16 Jan 2018 16:05:26 +0100
+Subject: [PATCH] tools: avoid text spilling into variables
+
+While libvirt-guests.sh is running cases can let guest_is_on fail which
+causes check_guests_shutdown to print output.
+That output shall not spill into the users of function
+check_guests_shutdown which is therefore now returning values in a
+variable like guest_is_on already did.
+
+Original-Author: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Modified-By: Jorge Niedbalski <niedbalski@ubuntu.com>
+Signed-off-by: Michal Privoznik <mprivozn@redhat.com>
+
+Forwarded: no (backport)
+Author: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Origin: upstream, https://libvirt.org/git/?p=libvirt.git;a=commit;h=ff02d1af4041ea4cf6bea68aac66d93a970e92f1
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1688508
+Last-Update: 2018-02-23
+---
+ tools/libvirt-guests.sh.in | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/tools/libvirt-guests.sh.in b/tools/libvirt-guests.sh.in
+index 8a158cc..d5e68e5 100644
+--- a/tools/libvirt-guests.sh.in
++++ b/tools/libvirt-guests.sh.in
+@@ -329,12 +329,13 @@ guest_count()
+ # check_guests_shutdown URI GUESTS
+ # check if shutdown is complete on guests in "GUESTS" and returns only
+ # guests that are still shutting down
++# Result is returned in "guests_shutting_down"
+ check_guests_shutdown()
+ {
+     uri=$1
+     guests=$2
+ 
+-    guests_up=
++    guests_shutting_down=
+     for guest in $guests; do
+         if ! guest_is_on "$uri" "$guest" >/dev/null 2>&1; then
+             eval_gettext "Failed to determine state of guest: \$guest. Not tracking it anymore."
+@@ -342,10 +343,9 @@ check_guests_shutdown()
+             continue
+         fi
+         if "$guest_running"; then
+-            guests_up="$guests_up $guest"
++            guests_shutting_down="$guests_shutting_down $guest"
+         fi
+     done
+-    echo "$guests_up"
+ }
+ 
+ # print_guests_shutdown URI BEFORE AFTER
+@@ -392,8 +392,11 @@ shutdown_guests_parallel()
+             guest=$1
+             shift
+             guests=$*
+-            shutdown_guest_async "$uri" "$guest"
+-            on_shutdown="$on_shutdown $guest"
++            if [ -z "$(echo $on_shutdown | grep $guest)" ] &&
++               [ -n "$(guest_name "$uri" "$guest")" ]; then
++                shutdown_guest_async "$uri" "$guest"
++                on_shutdown="$on_shutdown $guest"
++            fi
+         done
+         sleep 1
+ 
+@@ -420,7 +423,8 @@ shutdown_guests_parallel()
+         fi
+ 
+         on_shutdown_prev=$on_shutdown
+-        on_shutdown=$(check_guests_shutdown "$uri" "$on_shutdown")
++        check_guests_shutdown "$uri" "$on_shutdown"
++        on_shutdown="$guests_shutting_down"
+         print_guests_shutdown "$uri" "$on_shutdown_prev" "$on_shutdown"
+     done
+ }
+-- 
+2.7.4
+

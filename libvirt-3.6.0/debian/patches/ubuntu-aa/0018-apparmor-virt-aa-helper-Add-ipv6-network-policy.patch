@@ -1,0 +1,28 @@
+From 2824f5a8df3213446b6e81b2da51f4bfb0457fce Mon Sep 17 00:00:00 2001
+From: Serge Hallyn <serge.hallyn@ubuntu.com>
+Date: Thu, 11 May 2017 16:23:36 +0200
+Subject: [PATCH 18/33] apparmor, virt-aa-helper: Add ipv6 network policy
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1511830
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/usr.lib.libvirt.virt-aa-helper | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/examples/apparmor/usr.lib.libvirt.virt-aa-helper b/examples/apparmor/usr.lib.libvirt.virt-aa-helper
+index 1bc22fc..94e8e88 100644
+--- a/examples/apparmor/usr.lib.libvirt.virt-aa-helper
++++ b/examples/apparmor/usr.lib.libvirt.virt-aa-helper
+@@ -11,6 +11,7 @@ profile virt-aa-helper /usr/{lib,lib64}/libvirt/virt-aa-helper {
+ 
+   # needed for when disk is on a network filesystem
+   network inet,
++  network inet6,
+ 
+   deny @{PROC}/[0-9]*/mounts r,
+   @{PROC}/[0-9]*/net/psched r,
+-- 
+2.7.4
+

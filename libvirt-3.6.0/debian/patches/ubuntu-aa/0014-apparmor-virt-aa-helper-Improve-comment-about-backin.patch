@@ -1,0 +1,35 @@
+From 4753d6a128dea70eb14a87c4f17688e5b6c99aa2 Mon Sep 17 00:00:00 2001
+From: Stefan Bader <stefan.bader@canonical.com>
+Date: Thu, 11 May 2017 15:57:34 +0200
+Subject: [PATCH 14/33] apparmor, virt-aa-helper: Improve comment about backing
+ store
+
+Replaces comment by something more verbose (no functional change).
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/usr.lib.libvirt.virt-aa-helper | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/examples/apparmor/usr.lib.libvirt.virt-aa-helper b/examples/apparmor/usr.lib.libvirt.virt-aa-helper
+index 012080c..569b2f1 100644
+--- a/examples/apparmor/usr.lib.libvirt.virt-aa-helper
++++ b/examples/apparmor/usr.lib.libvirt.virt-aa-helper
+@@ -37,8 +37,11 @@ profile virt-aa-helper /usr/{lib,lib64}/libvirt/virt-aa-helper {
+   /etc/apparmor.d/libvirt/* r,
+   /etc/apparmor.d/libvirt/libvirt-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]* rw,
+ 
+-  # for backingstore -- allow access to non-hidden files in @{HOME} as well
+-  # as storage pools
++  # For backingstore, virt-aa-helper needs to peek inside the disk image, so
++  # allow access to non-hidden files in @{HOME} as well as storage pools, and
++  # removable media and filesystems, and certain file extentions. A
++  # virt-aa-helper failure when checking a disk for backinsgstore is non-fatal
++  # (but obviously the backingstore won't be added).
+   audit deny @{HOME}/.* mrwkl,
+   audit deny @{HOME}/.*/ rw,
+   audit deny @{HOME}/.*/** mrwkl,
+-- 
+2.7.4
+

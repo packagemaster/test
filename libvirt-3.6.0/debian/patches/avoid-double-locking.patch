@@ -1,0 +1,76 @@
+Description: virnetdaemon: Don't deadlock when talking to D-Bus
+In ace45e67abbd I've tried to fix a problem that we get the reply
+to a D-Bus call while we were sleeping. In that case the callback
+was never set. So I've changed the code that the callback is
+called directly in this case. However, I hadn't realized that
+since callback is called out of order it lock the virNetDaemon.
+Exactly the very same virNetDaemon that we are dealing with right
+now and have it locked already (in
+virNetDaemonAddShutdownInhibition())
+
+Signed-off-by: Michal Privoznik <mprivozn redhat com>
+
+Author: Michal Privoznik <mprivozn@redhat.com>
+Forwarded: no (backport)
+Origin: https://www.redhat.com/archives/libvir-list/2017-September/msg00015.html
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/1714254
+Bug: https://bugzilla.redhat.com/show_bug.cgi?id=1487322
+
+---
+ src/rpc/virnetdaemon.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
+
+diff --git a/src/rpc/virnetdaemon.c b/src/rpc/virnetdaemon.c
+index 00247cfc3..e3b9390af 100644
+--- a/src/rpc/virnetdaemon.c
++++ b/src/rpc/virnetdaemon.c
+@@ -439,14 +439,12 @@ virNetDaemonAutoShutdown(virNetDaemonPtr dmn,
+ 
+ #if defined(WITH_DBUS) && defined(DBUS_TYPE_UNIX_FD)
+ static void
+-virNetDaemonGotInhibitReply(DBusPendingCall *pending,
+-                            void *opaque)
++virNetDaemonGotInhibitReplyLocked(DBusPendingCall *pending,
++                                  virNetDaemonPtr dmn)
+ {
+-    virNetDaemonPtr dmn = opaque;
+     DBusMessage *reply;
+     int fd;
+ 
+-    virObjectLock(dmn);
+     dmn->autoShutdownCallingInhibit = false;
+ 
+     VIR_DEBUG("dmn=%p", dmn);
+@@ -470,11 +468,22 @@ virNetDaemonGotInhibitReply(DBusPendingCall *pending,
+     virDBusMessageUnref(reply);
+ 
+  cleanup:
+-    virObjectUnlock(dmn);
+     dbus_pending_call_unref(pending);
+ }
+ 
+ 
++static void
++virNetDaemonGotInhibitReply(DBusPendingCall *pending,
++                            void *opaque)
++{
++    virNetDaemonPtr dmn = opaque;
++
++    virObjectLock(dmn);
++    virNetDaemonGotInhibitReplyLocked(pending, dmn);
++    virObjectUnlock(dmn);
++}
++
++
+ /* As per: http://www.freedesktop.org/wiki/Software/systemd/inhibit */
+ static void
+ virNetDaemonCallInhibit(virNetDaemonPtr dmn,
+@@ -516,7 +525,7 @@ virNetDaemonCallInhibit(virNetDaemonPtr dmn,
+                                         25 * 1000) &&
+         pendingReply) {
+         if (dbus_pending_call_get_completed(pendingReply)) {
+-            virNetDaemonGotInhibitReply(pendingReply, dmn);
++            virNetDaemonGotInhibitReplyLocked(pendingReply, dmn);
+         } else {
+             dbus_pending_call_set_notify(pendingReply,
+                                          virNetDaemonGotInhibitReply,

@@ -1,0 +1,30 @@
+From da8bdd883a2b959a7476948db301c1efb7ff5190 Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Wed, 10 May 2017 16:31:58 +0200
+Subject: [PATCH 26/33] apparmor: add generic base vfio device
+
+vfio devices are generated on the fly, but the generic base is missing.
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1678322
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index d5594bb..07e3b61 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -199,3 +199,6 @@
+ 
+   # allow connect with openGraphicsFD to work
+   unix (send, receive) type=stream addr=none peer=(label=/usr/sbin/libvirtd),
++
++  # for vfio (LP: #1678322)
++  /dev/vfio/vfio rw,
+-- 
+2.7.4
+

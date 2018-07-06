@@ -1,0 +1,45 @@
+From bf3a4140877299cf351821518d269bcd4888f2f1 Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Wed, 20 Sep 2017 16:59:07 +0200
+Subject: virt-aa-helper: fix libusb access to udev usb data
+
+libusb as used by qemu needs to read data from /run/udev/data/ about usb
+devices. That is read once on the first initialization of libusb_init by
+qemu.
+
+Therefore generating just the device we need would not be sufficient as
+another hotplug later can need another device which would fail as the
+data is no more re-read at this point.
+
+But we can restrict the paths very much to just the major number of
+potential usb devices which will make it match approximately the detail
+that e.g. an lsusb -v would reveal - that is much safer than the
+"/run/udev/data/* r" blanket many users are using now as a workaround.
+
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 3 +++
+ 1 file changed, 3 insertions(+)
+
+Forwarded: no (backport)
+Origin: https://libvirt.org/git/?p=libvirt.git;a=commit;h=bf3a4140877299cf351821518d269bcd4888f2f1
+Author: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1686324
+Last-Update: 2017-10-24
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index dcfb1a5..b341e31 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -29,6 +29,9 @@
+   # For hostdev access. The actual devices will be added dynamically
+   /sys/bus/usb/devices/ r,
+   /sys/devices/**/usb[0-9]*/** r,
++  # libusb needs udev data about usb devices (~equal to content of lsusb -v)
++  /run/udev/data/c16[6,7]* r,
++  /run/udev/data/c18[0,8,9]* r,
+ 
+   # WARNING: this gives the guest direct access to host hardware and specific
+   # portions of shared memory. This is required for sound using ALSA with kvm,
+-- 
+2.7.4
+

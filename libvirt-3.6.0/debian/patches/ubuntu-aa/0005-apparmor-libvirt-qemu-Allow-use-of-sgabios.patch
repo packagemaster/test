@@ -1,0 +1,28 @@
+From 21495a435a2beebb88a0d416e96e74f0cf4e1cf9 Mon Sep 17 00:00:00 2001
+From: Serge Hallyn <serge.hallyn@ubuntu.com>
+Date: Thu, 11 May 2017 13:51:02 +0200
+Subject: [PATCH 05/33] apparmor, libvirt-qemu: Allow use of sgabios
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1393548
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index 9f70999..9c07e7b 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -75,6 +75,7 @@
+   /usr/share/proll/** r,
+   /usr/share/vgabios/** r,
+   /usr/share/seabios/** r,
++  /usr/share/misc/sgabios.bin r,
+   /usr/share/ovmf/** r,
+   /usr/share/OVMF/** r,
+   /usr/share/AAVMF/** r,
+-- 
+2.7.4
+

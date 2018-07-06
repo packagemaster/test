@@ -1,0 +1,17 @@
+Description: disable pool-netfs-gluster test
+ gluster is not built due to a universe dependency in Ubuntu, so disable the
+ associated test.
+Author: Serge Hallyn <serge.hallyn@ubuntu.com>
+Forwarded: no
+Index: libvirt/tests/storagepoolxml2xmltest.c
+===================================================================
+--- libvirt.orig/tests/storagepoolxml2xmltest.c	2016-07-13 16:15:13.006984158 +0200
++++ libvirt/tests/storagepoolxml2xmltest.c	2016-07-13 16:15:13.002984158 +0200
+@@ -84,7 +84,6 @@ mymain(void)
+     DO_TEST("pool-iscsi");
+     DO_TEST("pool-iscsi-auth");
+     DO_TEST("pool-netfs");
+-    DO_TEST("pool-netfs-gluster");
+     DO_TEST("pool-netfs-cifs");
+     DO_TEST("pool-scsi");
+     DO_TEST("pool-scsi-type-scsi-host");

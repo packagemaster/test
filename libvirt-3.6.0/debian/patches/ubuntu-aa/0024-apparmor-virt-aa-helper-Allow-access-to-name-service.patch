@@ -1,0 +1,35 @@
+From d107db89c9c94d640bf7525be549af835e4e78ad Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Wed, 10 May 2017 16:25:08 +0200
+Subject: [PATCH 24/33] apparmor, virt-aa-helper: Allow access to name services
+
+With the current profile, apparmor denies host name resolution from
+within virt-aa-helper. This is non-fatal, but was reported to cause
+quite some long delays.
+Fix this by including the name services abstraction template.
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1546674
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/usr.lib.libvirt.virt-aa-helper | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/examples/apparmor/usr.lib.libvirt.virt-aa-helper b/examples/apparmor/usr.lib.libvirt.virt-aa-helper
+index 396890c..387a261 100644
+--- a/examples/apparmor/usr.lib.libvirt.virt-aa-helper
++++ b/examples/apparmor/usr.lib.libvirt.virt-aa-helper
+@@ -4,6 +4,8 @@
+ profile virt-aa-helper /usr/{lib,lib64}/libvirt/virt-aa-helper {
+   #include <abstractions/base>
+   #include <abstractions/user-tmp>
++  # Avoid name resolution issues (LP: #1546674)
++  #include <abstractions/nameservice>
+ 
+   # needed for searching directories
+   capability dac_override,
+-- 
+2.7.4
+

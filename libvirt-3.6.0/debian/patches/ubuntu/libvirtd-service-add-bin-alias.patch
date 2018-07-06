@@ -1,0 +1,18 @@
+Description: Add libvirt-bin alias to libvirtd service
+
+    Handle libvirt-bin being renamed later in Ubuntu
+    This can be dropped after 18.04
+
+Forwarded: no (Ubuntu only)
+Author: Stefan Bader <stefan.bader@canonical.com>
+Patch-Name: debian/patches/ubuntu/libvirtd-service-add-bin-alias.patch
+Last-Update: 2017-07-05
+--- a/daemon/libvirtd.service.in
++++ b/daemon/libvirtd.service.in
+@@ -30,5 +30,6 @@
+ 
+ [Install]
+ WantedBy=multi-user.target
++Alias=libvirt-bin.service
+ Also=virtlockd.socket
+ Also=virtlogd.socket

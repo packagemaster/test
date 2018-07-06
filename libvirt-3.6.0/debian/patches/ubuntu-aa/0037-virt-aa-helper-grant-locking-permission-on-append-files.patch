@@ -1,0 +1,47 @@
+From 0b21b9d24e1e5b6c05dd7851d3002fb4308f2aa1 Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Tue, 24 Oct 2017 14:18:53 +0200
+Subject: [PATCH] virt-aa-helper: grnat locking permission on appended files
+
+Hot-adding disk devices does not parse the full XML to generate apparmor
+rules. Instead it uses -f <PATH> to append a generic rule for that path.
+
+580cdaa7: "virt-aa-helper: locking disk files for qemu 2.10" implemented
+the qemu 2.10 requirement to allow locking for disks that are part of
+the domain xml.
+
+But on attach-device a user will still trigger an apparmor deny like:
+  error: internal error: unable to execute QEMU command 'device_add':
+  Property 'virtio-blk-device.drive' can't find value 'drive-virtio-disk2'
+
+Therefore add the lock "k" permission to the append call to fix hot-add.
+
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+---
+ src/security/virt-aa-helper.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Forwarded: yes (https://www.redhat.com/archives/libvir-list/2017-October/msg01096.html)
+Author: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1726804
+Last-Update: 2017-10-24
+--- a/src/security/virt-aa-helper.c
++++ b/src/security/virt-aa-helper.c
+@@ -1152,7 +1152,7 @@ get_files(vahControl * ctl)
+     }
+ 
+     if (ctl->newfile)
+-        if (vah_add_file(&buf, ctl->newfile, "rw") != 0)
++        if (vah_add_file(&buf, ctl->newfile, "rwk") != 0)
+             goto cleanup;
+ 
+     if (virBufferError(&buf)) {
+@@ -1336,7 +1336,7 @@ main(int argc, char **argv)
+             vah_error(ctl, 1, _("profile exists"));
+ 
+         if (ctl->append && ctl->newfile) {
+-            if (vah_add_file(&buf, ctl->newfile, "rw") != 0)
++            if (vah_add_file(&buf, ctl->newfile, "rwk") != 0)
+                 goto cleanup;
+         } else {
+             if (ctl->def->virtType == VIR_DOMAIN_VIRT_QEMU ||

@@ -1,0 +1,5 @@
+usr/bin/*
+usr/share/man/man1/*
+etc/libvirt/libvirt.conf
+etc/libvirt/libvirt-admin.conf
+etc/profile.d/libvirt-uri.sh

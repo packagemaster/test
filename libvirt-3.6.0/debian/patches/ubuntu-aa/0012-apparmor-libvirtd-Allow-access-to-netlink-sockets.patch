@@ -1,0 +1,34 @@
+From 7a3cc3dda5e85819345f76e4fb87e293b836d8bd Mon Sep 17 00:00:00 2001
+From: Stefan Bader <stefan.bader@canonical.com>
+Date: Thu, 11 May 2017 11:50:06 +0200
+Subject: [PATCH 12/33] apparmor, libvirtd: Allow access to netlink sockets
+
+Example (taken from running inside a container):
+
+audit: type=1400 audit(1494486135.587:344): apparmor="DENIED"
+operation="create" namespace="root//lxd-debian-sid_<var-lib-lxd>"
+profile="/usr/sbin/libvirtd" pid=29807 comm="libvirtd" family="netlink"
+sock_type="raw" protocol=9 requested_mask="create" denied_mask="create"
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/usr.sbin.libvirtd | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/examples/apparmor/usr.sbin.libvirtd b/examples/apparmor/usr.sbin.libvirtd
+index d43389d..8406a27 100644
+--- a/examples/apparmor/usr.sbin.libvirtd
++++ b/examples/apparmor/usr.sbin.libvirtd
+@@ -36,6 +36,8 @@
+   network inet6 dgram,
+   network packet dgram,
+   network packet raw,
++  # apparmor >= 2.9
++  network netlink,
+ 
+   # Very lenient profile for libvirtd since we want to first focus on confining
+   # the guests. Guests will have a very restricted profile.
+-- 
+2.7.4
+

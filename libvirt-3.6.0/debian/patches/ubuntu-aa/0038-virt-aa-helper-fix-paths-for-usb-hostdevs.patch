@@ -1,0 +1,66 @@
+From 750e08443a7b07324d75b4c7648b15a9d77b124e Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Wed, 20 Sep 2017 16:59:06 +0200
+Subject: virt-aa-helper: fix paths for usb hostdevs
+
+If users only specified vendor&product (the common case) then parsing
+the xml via virDomainHostdevSubsysUSBDefParseXML would only set these.
+Bus and Device would much later be added when the devices are prepared
+to be added.
+
+Due to that a hot-add of a usb hostdev works as the device is prepared
+and virt-aa-helper processes the new internal xml. But on an initial
+guest start at the time virt-aa-helper renders the apparmor rules the
+bus/device id's are not set yet:
+
+p ctl->def->hostdevs[0]->source.subsys.u.usb
+$12 = {autoAddress = false, bus = 0, device = 0, vendor = 1921, product
+= 21888}
+
+That causes rules to be wrong:
+  "/dev/bus/usb/000/000" rw,
+
+The fix calls virHostdevFindUSBDevice after reading the XML from
+virt-aa-helper to only add apparmor rules for devices that could be found
+and now are fully known to be able to write the rule correctly.
+
+It uncondtionally sets virHostdevFindUSBDevice mandatory attribute as
+adding an apparmor rule for a device not found makes no sense no matter
+what startup policy it has set.
+
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Signed-off-by: Michal Privoznik <mprivozn@redhat.com>
+---
+ src/security/virt-aa-helper.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+Forwarded: no (backport)
+Origin: https://libvirt.org/git/?p=libvirt.git;a=commit;h=750e08443a7b07324d75b4c7648b15a9d77b124e
+Author: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1552241
+Last-Update: 2017-10-24
+diff --git a/src/security/virt-aa-helper.c b/src/security/virt-aa-helper.c
+index 7944dc1..d1518ea 100644
+--- a/src/security/virt-aa-helper.c
++++ b/src/security/virt-aa-helper.c
+@@ -55,6 +55,7 @@
+ #include "virrandom.h"
+ #include "virstring.h"
+ #include "virgettext.h"
++#include "virhostdev.h"
+ 
+ #include "storage/storage_source.h"
+ 
+@@ -1069,6 +1070,9 @@ get_files(vahControl * ctl)
+                 if (usb == NULL)
+                     continue;
+ 
++                if (virHostdevFindUSBDevice(dev, true, &usb) < 0)
++                    continue;
++
+                 rc = virUSBDeviceFileIterate(usb, file_iterate_hostdev_cb, &buf);
+                 virUSBDeviceFree(usb);
+                 if (rc != 0)
+-- 
+2.7.4
+

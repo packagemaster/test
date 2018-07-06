@@ -1,0 +1,52 @@
+From cce57265c42e630036ed4d292d6399cdee08fd78 Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Thu, 19 Apr 2018 08:41:03 +0200
+Subject: [PATCH 2/2] tools: do not report unknown guests in
+ print_guests_shutdown
+
+If another event in background while running libvirt-guests.sh
+completely undefines a guest it will no more be available for proper
+reporting of its shutdown.
+
+This appears in the log as:
+  Failed to determint state of guest: <UUID>. Not tracking it anymore
+  Shutdown of guest  complete
+
+The first message already reports that we are giving up on the guest
+(per UUID which is all we have left at that point). To avoid the message
+with an empty guest_name in such a case lets check what guest_name
+returned and only print a report on valid content.
+
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Signed-off-by: Michal Privoznik <mprivozn@redhat.com>
+Reviewed-by: Andrea Bolognani <abologna@redhat.com>
+Reviewed-by: Dariusz Gadomski <dariusz.gadomski@canonical.com>
+
+Forwarded: no (backport)
+Origin: upstream, https://libvirt.org/git/?p=libvirt.git;a=commit;h=08bb5eeba7925a5a9cbd5a8dc9368ca3d36d3d3f
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1764668
+Last-Update: 2018-04-24
+---
+ tools/libvirt-guests.sh.in | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/tools/libvirt-guests.sh.in b/tools/libvirt-guests.sh.in
+index 28fe506..4bc6e86 100644
+--- a/tools/libvirt-guests.sh.in
++++ b/tools/libvirt-guests.sh.in
+@@ -363,8 +363,10 @@ print_guests_shutdown()
+         esac
+ 
+         name=$(guest_name "$uri" "$guest")
+-        eval_gettext "Shutdown of guest \$name complete."
+-        echo
++        if [ -n "$name" ]; then
++            eval_gettext "Shutdown of guest \$name complete."
++            echo
++        fi
+     done
+ }
+ 
+-- 
+2.7.4
+

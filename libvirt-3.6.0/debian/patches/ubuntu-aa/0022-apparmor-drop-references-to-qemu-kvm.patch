@@ -1,0 +1,38 @@
+From c089bb4e1f22952cbcbf055dea38fb5ca4722855 Mon Sep 17 00:00:00 2001
+From: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date: Wed, 10 May 2017 17:32:36 +0200
+Subject: [PATCH 22/33] apparmor: drop references to qemu-kvm
+
+Package qemu-kvm still exists, but several paths still allowed
+in the apparmor profile don't. Remove these entries.
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index 8973df8..2866d1a 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -75,7 +75,6 @@
+   # access to firmware's etc
+   /usr/share/kvm/** r,
+   /usr/share/qemu/** r,
+-  /usr/share/qemu-kvm/** r,
+   /usr/share/bochs/** r,
+   /usr/share/openbios/** r,
+   /usr/share/openhackware/** r,
+@@ -95,7 +94,6 @@
+   # the various binaries
+   /usr/bin/kvm rmix,
+   /usr/bin/qemu rmix,
+-  /usr/bin/qemu-kvm rmix,
+   /usr/bin/qemu-system-aarch64 rmix,
+   /usr/bin/qemu-system-alpha rmix,
+   /usr/bin/qemu-system-arm rmix,
+-- 
+2.7.4
+

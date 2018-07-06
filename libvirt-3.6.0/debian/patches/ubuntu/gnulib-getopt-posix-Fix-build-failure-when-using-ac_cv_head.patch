@@ -1,0 +1,48 @@
+From 180a0d70d117a9da652fa1aa17fff9537b082c2c Mon Sep 17 00:00:00 2001
+From: Bruno Haible <bruno@clisp.org>
+Date: Mon, 9 Oct 2017 16:33:00 +0200
+Subject: [PATCH] getopt-posix: Fix build failure when using
+ ac_cv_header_getopt_h=no.
+
+Reported by Christian Ehrhardt <christian.ehrhardt@canonical.com>
+and Daniel P. Berrange <berrange@redhat.com>.
+
+* lib/unistd.in.h (getopt): Don't attempt to avoid namespace pollution
+on glibc systems. The getopt-pfx-core.h file declares exactly what
+unistd.h needs, nothing more.
+
+*Update*
+ - modified to match the gnulib in libvirt dfsg tarballs (e.g. no changelog,
+   other paths)
+
+Forwarded: yes, discussion at https://www.redhat.com/archives/libvir-list/2017-September/msg01039.html
+Author: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Original-Author: Bruno Haible <bruno@clisp.org>
+Origin: http://git.savannah.gnu.org/cgit/gnulib.git/commit/?id=180a0d70d117a9da652fa1aa17fff9537b082c2c
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1718668
+Bug-Debian: none
+Patch-Name: <todo patch name>
+Last-Update: 2017-03-17
+---
+ lib/unistd.in.h | 5 ++---
+ 2 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/gnulib/lib/unistd.in.h b/gnulib/lib/unistd.in.h
+index 748112f..b5b6e0e 100644
+--- a/gnulib/lib/unistd.in.h
++++ b/gnulib/lib/unistd.in.h
+@@ -134,9 +134,8 @@
+ /* The definition of _GL_WARN_ON_USE is copied here.  */
+ 
+ 
+-/* Get getopt(), optarg, optind, opterr, optopt.
+-   But avoid namespace pollution on glibc systems.  */
+-#if @GNULIB_UNISTD_H_GETOPT@ && !defined __GLIBC__ && !defined _GL_SYSTEM_GETOPT
++/* Get getopt(), optarg, optind, opterr, optopt.  */
++#if @GNULIB_UNISTD_H_GETOPT@ && !defined _GL_SYSTEM_GETOPT
+ # include <getopt-cdefs.h>
+ # include <getopt-pfx-core.h>
+ #endif
+-- 
+2.7.4
+

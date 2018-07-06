@@ -1,0 +1,32 @@
+From b61e359a34dda2f26900d4d9fe9d8c7d09665e1d Mon Sep 17 00:00:00 2001
+From: Serge Hallyn <serge.hallyn@ubuntu.com>
+Date: Thu, 11 May 2017 14:38:34 +0200
+Subject: [PATCH 09/33] apparmor, libvirt-qemu: Allow read access to
+ max_mem_regions
+
+Allows read access to /sys/module/vhost/parameters/max_mem_regions.
+
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1531564)
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index 47f3926..c4d27af 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -37,6 +37,8 @@
+   /sys/devices/system/node/node[0-9]*/meminfo r,
+   /sys/devices/system/cpu/ r,
+ 
++  /sys/module/vhost/parameters/max_mem_regions r,
++
+   # For hostdev access. The actual devices will be added dynamically
+   /sys/bus/usb/devices/ r,
+   /sys/devices/**/usb[0-9]*/** r,
+-- 
+2.7.4
+

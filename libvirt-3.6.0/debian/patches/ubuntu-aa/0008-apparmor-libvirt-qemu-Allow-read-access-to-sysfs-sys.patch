@@ -1,0 +1,35 @@
+From 559b4a8a4f8b1e6c49b504a9678e9f89ff092b1e Mon Sep 17 00:00:00 2001
+From: Jamie Strandboge <jamie@ubuntu.com>
+Date: Thu, 11 May 2017 14:34:20 +0200
+Subject: [PATCH 08/33] apparmor, libvirt-qemu: Allow read access to sysfs
+ system info
+
+Newer qemu wants to read
+/sys/devices/system/node/
+/sys/devices/system/cpu/
+/sys/devices/system/node/node[0-9]*/meminfo
+
+Forwarded: no (part of continuous upstreaming effort)
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+---
+ examples/apparmor/libvirt-qemu | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/examples/apparmor/libvirt-qemu b/examples/apparmor/libvirt-qemu
+index 597d282..47f3926 100644
+--- a/examples/apparmor/libvirt-qemu
++++ b/examples/apparmor/libvirt-qemu
+@@ -33,6 +33,10 @@
+   owner @{PROC}/*/auxv r,
+   @{PROC}/sys/vm/overcommit_memory r,
+ 
++  /sys/devices/system/node/ r,
++  /sys/devices/system/node/node[0-9]*/meminfo r,
++  /sys/devices/system/cpu/ r,
++
+   # For hostdev access. The actual devices will be added dynamically
+   /sys/bus/usb/devices/ r,
+   /sys/devices/**/usb[0-9]*/** r,
+-- 
+2.7.4
+
